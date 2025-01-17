@@ -368,11 +368,11 @@ class PrivateGptUi:
         logger.debug("Creating the UI blocks")
         with gr.Blocks(
             title=UI_TAB_TITLE,
-            theme=gr.themes.Soft(primary_hue='sky', secondary_hue="cyan",neutral_hue ='cyan'),
+            theme=gr.themes.Soft(primary_hue='cyan', secondary_hue="cyan",neutral_hue ='cyan'),
             css="""
 .image {
     display: flex;
-    background-color: #082c91;
+    background-color:rgb(22, 37, 112);
     height: 80px;
     border-radius: 8px;
     align-content: center;
@@ -381,9 +381,11 @@ class PrivateGptUi:
 }
 
 .logo img {
+    
     width: 20%;
     margin-left: auto;
     margin-right: auto;
+
 }
 
 .contain {
