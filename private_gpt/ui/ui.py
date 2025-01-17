@@ -584,7 +584,7 @@ hr {
                         return model_mapping[llm_mode]
 
                 with gr.Column(scale=7, elem_id="col" ):
-                    sidebar_state = gr.State(False)
+                    sidebar_state = gr.State(True)
                     btn_toggle_sidebar.click(toggle_sidebar, [sidebar_state], [sidebar_left, sidebar_state])
 
                     # Determine the model label based on the value of PGPT_PROFILES
