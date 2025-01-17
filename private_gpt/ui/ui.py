@@ -436,7 +436,7 @@ hr {
                     return gr.update(visible = state), state
                 btn_toggle_sidebar = gr.Button("☰", elem_classes="toggle")
             with gr.Row(equal_height=False):
-                with gr.Column(scale=3, visible=False) as sidebar_left:
+                with gr.Column(scale=3, visible=True) as sidebar_left:
                     default_mode = self._default_mode
                     mode = gr.Radio(
                         [mode.value for mode in MODES],
