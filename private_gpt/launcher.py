@@ -1,14 +1,11 @@
-"""FastAPI app creation, logger configuration and main API routes."""
-
 import logging
-
+import json
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from injector import Injector
 from llama_index.core.callbacks import CallbackManager
 from llama_index.core.callbacks.global_handlers import create_global_handler
 from llama_index.core.settings import Settings as LlamaIndexSettings
-
 from private_gpt.server.chat.chat_router import chat_router
 from private_gpt.server.chunks.chunks_router import chunks_router
 from private_gpt.server.completions.completions_router import completions_router
@@ -18,12 +15,41 @@ from private_gpt.server.ingest.ingest_router import ingest_router
 from private_gpt.server.recipes.summarize.summarize_router import summarize_router
 from private_gpt.settings.settings import Settings
 
-logger = logging.getLogger(__name__)
+def setup_logging():
+    """Configure logging to write debug logs to a .json file."""
+    class JsonFormatter(logging.Formatter):
+        def format(self, record):
+            log_record = {
+                "time": self.formatTime(record),
+                "level": record.levelname,
+                "message": record.getMessage(),
+                "name": record.name,
+                "pathname": record.pathname,
+                "lineno": record.lineno,
+            }
+            return json.dumps(log_record)
 
+    # Define logger configuration
+    handler = logging.FileHandler("lanch.json")
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(JsonFormatter())
+
+    # Get the root logger and configure it
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    root_logger.addHandler(handler)
+
+    # Optional: Suppress overly verbose logs from libraries
+    logging.getLogger("uvicorn").setLevel(logging.INFO)
+    logging.getLogger("fastapi").setLevel(logging.INFO)
+
+# Call the logging setup function
+setup_logging()
+
+logger = logging.getLogger(__name__)
 
 def create_app(root_injector: Injector) -> FastAPI:
 
-    # Start the API
     async def bind_injector_to_request(request: Request) -> None:
         request.state.injector = root_injector
 
@@ -37,7 +63,6 @@ def create_app(root_injector: Injector) -> FastAPI:
     app.include_router(embeddings_router)
     app.include_router(health_router)
 
-    # Add LlamaIndex simple observability
     global_handler = create_global_handler("simple")
     if global_handler:
         LlamaIndexSettings.callback_manager = CallbackManager([global_handler])
