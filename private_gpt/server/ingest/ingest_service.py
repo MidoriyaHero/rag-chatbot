@@ -2,6 +2,7 @@ import logging
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, AnyStr, BinaryIO
+import pandas as pd
 
 from injector import inject, singleton
 from llama_index.core.node_parser import SentenceWindowNodeParser
@@ -81,7 +82,12 @@ class IngestService:
         logger.debug("Ingesting binary data with file_name=%s", file_name)
         file_data = raw_file_data.read()
         return self._ingest_data(file_name, file_data)
-
+    
+    def ingest_excel(self, file_name: str, excel_data: BinaryIO) -> list[IngestedDoc]:
+        logger.debug("Ingesting Excel data with file_name=%s", file_name)
+        df = pd.read_excel(excel_data)
+        text = df.to_csv(index=False)
+        return self.ingest_text(file_name, text)
     def bulk_ingest(self, files: list[tuple[str, Path]]) -> list[IngestedDoc]:
         logger.info("Ingesting file_names=%s", [f[0] for f in files])
         documents = self.ingest_component.bulk_ingest(files)

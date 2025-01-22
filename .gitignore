@@ -1,7 +1,7 @@
 .venv
 .env
 venv
-
+sharepoint.py
 settings-me.yaml
 
 .ruff_cache

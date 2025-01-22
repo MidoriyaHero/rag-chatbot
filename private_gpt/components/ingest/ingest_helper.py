@@ -80,9 +80,21 @@ class IngestionHelper:
     @staticmethod
     def _load_file_to_documents(file_name: str, file_data: Path) -> list[Document]:
         logger.debug("Transforming file_name=%s into documents", file_name)
-        extension = Path(file_name).suffix
+        extension = Path(file_name).suffix.lower()
         reader_cls = FILE_READER_CLS.get(extension)
-        if reader_cls is None:
+        if extension in ['.txt']:
+            string_reader = StringIterableReader()
+            return string_reader.load_data([file_data.read_text()])
+
+        elif extension in ['.xlsx', '.xls']:
+            import pandas as pd
+            logger.debug("Reading Excel file")
+            df = pd.read_excel(file_data)
+            text = df.to_csv(index=False)
+            string_reader = StringIterableReader()
+            return string_reader.load_data([text])
+
+        elif reader_cls is None:
             logger.debug(
                 "No reader found for extension=%s, using default string reader",
                 extension,
